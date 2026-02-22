@@ -852,6 +852,142 @@
 				"[concat(variables('factoryId'), '/datasets/ds_csv')]",
 				"[concat(variables('factoryId'), '/datasets/ds_parquet')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/dataflow_sql')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "excel",
+								"type": "DatasetReference"
+							},
+							"name": "source"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "sqldb1",
+								"type": "DatasetReference"
+							},
+							"name": "sink"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          customer_id as string,",
+						"          emirates_id as string,",
+						"          full_name_en as string,",
+						"          full_name_ar as string,",
+						"          dob as string,",
+						"          nationality as string,",
+						"          gender as string,",
+						"          mobile as string,",
+						"          email as string,",
+						"          address_line_1 as string,",
+						"          address_line_2 as string,",
+						"          city as string,",
+						"          district as string,",
+						"          state as string,",
+						"          pincode as string,",
+						"          country as string,",
+						"          risk_rating as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     ignoreNoFilesFound: false) ~> source",
+						"source sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     preCommands: [],",
+						"     postCommands: []) ~> sink"
+					]
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/excel')]",
+				"[concat(variables('factoryId'), '/datasets/sqldb1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pipeline_dataflow_copy1')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Data flow",
+						"type": "ExecuteDataFlow",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataflow": {
+								"referenceName": "dataflow1",
+								"type": "DataFlowReference",
+								"parameters": {},
+								"datasetParameters": {
+									"source": {
+										"filename": {
+											"value": "@pipeline().parameters.src_filename",
+											"type": "Expression"
+										}
+									},
+									"sink": {}
+								},
+								"linkedServiceParameters": {
+									"source": {
+										"schemaLinkedService": {
+											"filename": {
+												"value": "@pipeline().parameters.src_filename",
+												"type": "Expression"
+											}
+										}
+									}
+								}
+							},
+							"staging": {},
+							"compute": {
+								"coreCount": 8,
+								"computeType": "General"
+							},
+							"traceLevel": "Fine"
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"src_filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-02-20T19:50:27Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/dataflows/dataflow1')]"
+			]
 		}
 	]
 }
