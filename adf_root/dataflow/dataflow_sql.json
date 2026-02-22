@@ -1,0 +1,63 @@
+{
+	"name": "dataflow_sql",
+	"properties": {
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "excel",
+						"type": "DatasetReference"
+					},
+					"name": "source"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "sqldb1",
+						"type": "DatasetReference"
+					},
+					"name": "sink"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          customer_id as string,",
+				"          emirates_id as string,",
+				"          full_name_en as string,",
+				"          full_name_ar as string,",
+				"          dob as string,",
+				"          nationality as string,",
+				"          gender as string,",
+				"          mobile as string,",
+				"          email as string,",
+				"          address_line_1 as string,",
+				"          address_line_2 as string,",
+				"          city as string,",
+				"          district as string,",
+				"          state as string,",
+				"          pincode as string,",
+				"          country as string,",
+				"          risk_rating as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     ignoreNoFilesFound: false) ~> source",
+				"source sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     preCommands: [],",
+				"     postCommands: []) ~> sink"
+			]
+		}
+	}
+}
